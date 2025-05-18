@@ -4,7 +4,7 @@ const products = [
       id: 1,
       name: "E-Book Langit Tidak Hanya Biru",
       cover: "/covers/langit.png",
-      price: 25000
+      price: 10000
     }
     // {
     //   id: 2,
