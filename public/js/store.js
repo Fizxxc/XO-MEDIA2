@@ -1,104 +1,125 @@
-// public/js/store.js
-import { v4 as uuid } from "https://jspm.dev/uuid";
+const listEl = document.getElementById("list");
+const checkoutModal = document.getElementById("checkout");
+const buyerForm = document.getElementById("buyerForm");
+const paymentSection = document.getElementById("paymentSection");
+const qrImg = document.getElementById("qr");
+const paidBtn = document.getElementById("paid");
 
-const list      = document.getElementById("list");
-const checkout  = document.getElementById("checkout");
-const qrImg     = document.getElementById("qr");
-const paidBtn   = document.getElementById("paid");
+let selectedProduct = null;
+let currentOrderId = null;
 
-// ─── 1. tampilkan produk ──────────────────────────────────────────
-fetch("/api/XO?cmd=products")
-  .then(r => r.json())
-  .then(render);
+// Ambil dan tampilkan produk
+async function loadProducts() {
+  const res = await fetch("/api/XO?cmd=products");
+  const products = await res.json();
 
-function render(products) {
-  products.forEach(p => {
-    const card = document.createElement("article");
-    card.className =
-      "bg-white rounded-2xl p-4 shadow flex flex-col hover:shadow-lg transition";
-    card.innerHTML = `
-      <img src="${p.cover}" alt="${p.title}"
-           class="rounded mb-3 aspect-[3/4] object-cover w-full">
-      <h3 class="font-semibold">${p.title}</h3>
-      <p class="text-sm mt-auto">Rp ${p.price.toLocaleString()}</p>
-      <button class="mt-3 py-2 bg-indigo-600 text-white rounded-xl w-full">
+  listEl.innerHTML = products
+    .map(
+      (p) => `
+    <div class="bg-white rounded-lg shadow p-4 flex flex-col items-center">
+      <img src="${p.cover}" alt="${p.name}" class="w-32 h-32 object-cover mb-4" />
+      <h3 class="font-semibold mb-2">${p.name}</h3>
+      <p class="mb-4">Rp ${p.price.toLocaleString()}</p>
+      <button data-id="${p.id}" class="buy-btn bg-indigo-600 text-white px-4 py-2 rounded">
         Beli
-      </button>`;
-    card.querySelector("button").onclick = () => openForm(p);
-    list.appendChild(card);
+      </button>
+    </div>
+  `
+    )
+    .join("");
+
+  // Pasang event beli
+  document.querySelectorAll(".buy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = Number(btn.dataset.id);
+      selectedProduct = products.find((p) => p.id === id);
+      if (!selectedProduct) return alert("Produk tidak ditemukan");
+      openCheckout();
+    });
   });
 }
 
-// ─── 2. form data pembeli ─────────────────────────────────────────
-function openForm(product) {
-  const html = `
-    <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-      <h2 class="text-xl font-semibold mb-4">Data Pembeli</h2>
-      <label class="block mb-2 text-sm">Nama
-        <input id="c-name" class="mt-1 w-full border p-2 rounded"/>
-      </label>
-      <label class="block mb-2 text-sm">Email
-        <input id="c-email" type="email"
-               class="mt-1 w-full border p-2 rounded"/>
-      </label>
-      <label class="block mb-4 text-sm">No WhatsApp
-        <input id="c-wa" class="mt-1 w-full border p-2 rounded"/>
-      </label>
-      <button id="c-next"
-              class="w-full py-2 rounded-xl bg-indigo-600 text-white">
-        Lanjut ke Pembayaran
-      </button>
-    </div>`;
-  checkout.innerHTML = html;
-  checkout.classList.remove("hidden");
+// Buka modal checkout dan reset form
+function openCheckout() {
+  buyerForm.reset();
+  paymentSection.classList.add("hidden");
+  buyerForm.classList.remove("hidden");
+  checkoutModal.classList.remove("hidden");
+}
 
-  document.getElementById("c-next").onclick = () => {
-    const buyer = {
-      name : document.getElementById("c-name").value.trim(),
-      email: document.getElementById("c-email").value.trim(),
-      wa   : document.getElementById("c-wa").value.trim()
-    };
-    if (!buyer.name || !buyer.email || !buyer.wa) {
-      return alert("Semua field wajib diisi");
-    }
-    makeOrder(product, buyer);
+// Tutup modal checkout
+function closeCheckout() {
+  checkoutModal.classList.add("hidden");
+  qrImg.src = "";
+  selectedProduct = null;
+  currentOrderId = null;
+}
+
+// Submit form buyer, buat order dan tampilkan QR
+buyerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const buyer = {
+    name: buyerForm.name.value.trim(),
+    email: buyerForm.email.value.trim(),
+    wa: buyerForm.wa.value.trim(),
   };
-}
 
-// ─── 3. buat order & tampilkan QR ──────────────────────────────────
-async function makeOrder(product, buyer) {
-  const id  = uuid();
+  if (!buyer.name || !buyer.email || !buyer.wa) {
+    alert("Isi semua data pembeli dengan benar.");
+    return;
+  }
+
+  if (!selectedProduct) {
+    alert("Produk tidak dipilih.");
+    return;
+  }
+
+  // Buat ID order unik
+  currentOrderId = crypto.randomUUID();
+
+  // Kirim order ke API
   const res = await fetch("/api/XO?cmd=order", {
-    method : "POST",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body   : JSON.stringify({ id, product, buyer })
+    body: JSON.stringify({
+      id: currentOrderId,
+      product: selectedProduct,
+      buyer,
+    }),
   });
-  const { qr } = await res.json();
 
-  checkout.innerHTML = `
-    <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-      <h2 class="text-xl font-semibold mb-2">Bayar dengan DANA / QRIS</h2>
-      <img src="${qr}" class="w-64 h-64 mx-auto border">
-      <p class="text-center mt-2">
-        Scan kode di atas lalu klik “Saya sudah bayar”
-      </p>
-      <button id="paid"
-              class="w-full mt-4 py-2 rounded-xl bg-indigo-600 text-white">
-        Saya sudah bayar
-      </button>
-    </div>`;
-  document.getElementById("paid").onclick = () => checkStatus(id);
-}
+  if (!res.ok) {
+    alert("Gagal membuat order.");
+    return;
+  }
 
-async function checkStatus(id) {
-  const { status } = await fetch(`/api/XO?cmd=status&id=${id}`).then(r => r.json());
-  alert(
-    status === "pending"
-      ? "Pembayaran belum terverifikasi."
-      : "Pembayaran terverifikasi! E-book segera dikirim."
-  );
-}
+  const data = await res.json();
 
-window.addEventListener("keydown", e => {
-  if (e.key === "Escape") checkout.classList.add("hidden");
+  // Tampilkan QR dan tombol bayar
+  qrImg.src = data.qr || "/qris.png";
+  buyerForm.classList.add("hidden");
+  paymentSection.classList.remove("hidden");
 });
+
+// Tombol "Saya sudah bayar"
+paidBtn.addEventListener("click", async () => {
+  if (!currentOrderId) return alert("Order belum dibuat.");
+
+  // Update status order ke "sent"
+  const res = await fetch("/api/XO?cmd=send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: currentOrderId }),
+  });
+
+  if (res.ok) {
+    alert("Terima kasih, pesanan Anda telah diproses!");
+    closeCheckout();
+  } else {
+    alert("Gagal memproses pesanan.");
+  }
+});
+
+// Load produk saat halaman siap
+loadProducts();
