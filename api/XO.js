@@ -4,10 +4,22 @@ import QRCode     from "qrcode";
 const orders   = new Map();
 const products = [
   {
-    sku   : "ebook1",
-    title : "Growth Hacking 101",
-    price : 50000,
-    cover : "https://picsum.photos/200/300?random=1"
+    sku: "ebook1",
+    title: "Growth Hacking 101",
+    price: 50000,
+    cover: "https://picsum.photos/200/300?random=1"
+  },
+  {
+    sku: "ebook2",
+    title: "JavaScript Advanced",
+    price: 75000,
+    cover: "https://picsum.photos/200/300?random=2"
+  },
+  {
+    sku: "ebook3",
+    title: "CSS Modern Techniques",
+    price: 60000,
+    cover: "https://picsum.photos/200/300?random=3"
   }
 ];
 
