@@ -16,8 +16,8 @@ function show(products) {
     card.className =
       "bg-white rounded-2xl p-4 shadow flex flex-col hover:shadow-lg transition";
     card.innerHTML = `
-      <img src="${p.cover}" alt="${p.title}" class="rounded mb-3 aspect-[3/4] object-cover w-full">
-      <h3 class="font-semibold">${p.title}</h3>
+      <img src="${p.cover}" alt="${p.name}" class="rounded mb-3 aspect-[3/4] object-cover w-full">
+      <h3 class="font-semibold">${p.name}</h3>
       <p class="text-sm mt-auto">Rp ${p.price.toLocaleString()}</p>
       <button class="mt-3 py-2 bg-indigo-600 text-white rounded-xl w-full">Beli</button>`;
     card.querySelector("button").onclick = () => buy(p);
