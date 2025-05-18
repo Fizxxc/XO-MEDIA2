@@ -7,7 +7,7 @@ async function load() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="p-3">${o.id}</td>
-      <td>${o.product.title}</td>
+      <td>${o.product.name}</td>
       <td>${o.status}</td>
       <td>
         <button class="px-3 py-1 bg-green-600 text-white rounded"
