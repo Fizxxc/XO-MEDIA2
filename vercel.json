@@ -3,9 +3,6 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
     { "src": "/XO-Fizzx", "dest": "/admin.html" },
-
-    { "src": "/", "dest": "/index.html" },
-
     { "handle": "filesystem" }
   ]
 }
