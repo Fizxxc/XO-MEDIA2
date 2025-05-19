@@ -2,7 +2,7 @@
   "version": 2,
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
-    { "src": "/XO-Fizzx", "dest": "/admin.html" },
+    { "src": "/XO-Fizzx", "dest": "/xoadm.html" },
     { "handle": "filesystem" }
   ]
 }
