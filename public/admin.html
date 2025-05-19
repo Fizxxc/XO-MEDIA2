@@ -7,20 +7,23 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen p-6">
-  <h1 class="text-3xl font-bold mb-4">Admin Dashboard</h1>
+  <h1 class="text-3xl font-bold mb-6">Dashboard Admin</h1>
 
-  <table class="w-full bg-white rounded-xl overflow-hidden shadow">
-    <thead class="bg-slate-200">
-      <tr>
-        <th class="p-3 text-left">Order #</th>
-        <th>Buyer</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="orders"></tbody>
-  </table>
+  <div class="overflow-x-auto rounded-xl shadow">
+    <table class="min-w-full bg-white">
+      <thead class="bg-slate-200 text-left text-sm uppercase">
+        <tr>
+          <th class="p-3">Order&nbsp;ID</th>
+          <th class="p-3">Buyer</th>
+          <th class="p-3">Product</th>
+          <th class="p-3">Status</th>
+          <th class="p-3">Action</th>
+        </tr>
+      </thead>
+      <tbody id="orders" class="text-sm"></tbody>
+    </table>
+  </div>
 
-  <script src="js/admin.js" type="module"></script>
+  <script src="/js/admin.js" type="module"></script>
 </body>
 </html>
