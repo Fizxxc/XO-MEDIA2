@@ -1,38 +1,55 @@
-// public/js/admin.js
 const tbody = document.getElementById("orders");
 
-async function load() {
-  const orders = await fetch("/api/XO?cmd=orders").then(r => r.json());
-  tbody.innerHTML = "";
-  orders.forEach(o => {
-    const buyer = o.buyer
-      ? `${o.buyer.name}<br><small>${o.buyer.email}<br>${o.buyer.wa}</small>`
+// ambil & render order tiap 5 detik
+async function loadOrders() {
+  const res = await fetch("/api/XO?cmd=orders");
+  if (!res.ok) return console.error("Gagal fetch orders");
+  const data = await res.json();
+
+  tbody.innerHTML = ""; // reset
+  data.forEach((o) => {
+    const buyerInfo = o.buyer
+      ? `<div>${o.buyer.name}<br>
+         <small>${o.buyer.email}<br>${o.buyer.wa}</small></div>`
       : "-";
+
     const tr = document.createElement("tr");
+    tr.className = "border-b last:border-none";
+
     tr.innerHTML = `
-      <td class="p-3">${o.id}</td>
-      <td>${buyer}</td>
-      <td>${o.product.title}</td>
-      <td>${o.status}</td>
-      <td>
-        <button class="px-3 py-1 bg-green-600 text-white rounded"
-          ${o.status !== "pending" ? "disabled" : ""}>
+      <td class="p-3 whitespace-nowrap">${o.id}</td>
+      <td class="p-3">${buyerInfo}</td>
+      <td class="p-3">${o.product?.name ?? "-"}</td>
+      <td class="p-3">${o.status}</td>
+      <td class="p-3">
+        <button
+          class="send-btn px-3 py-1 rounded text-white
+                 ${o.status === "sent" ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"}"
+          data-id="${o.id}"
+          ${o.status === "sent" ? "disabled" : ""}>
           Tandai Terkirim
         </button>
-      </td>`;
-    tr.querySelector("button").onclick = () => markSent(o.id);
+      </td>
+    `;
     tbody.appendChild(tr);
+  });
+
+  // pasang handler tombol
+  tbody.querySelectorAll(".send-btn:not([disabled])").forEach((btn) => {
+    btn.addEventListener("click", () => markSent(btn.dataset.id));
   });
 }
 
 async function markSent(id) {
-  await fetch("/api/XO?cmd=send", {
-    method : "POST",
+  const ok = await fetch("/api/XO?cmd=send", {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    body   : JSON.stringify({ id })
-  });
-  load();
+    body: JSON.stringify({ id }),
+  }).then((r) => r.ok);
+
+  if (ok) loadOrders();
+  else alert("Gagal mengubah status.");
 }
 
-load();
-setInterval(load, 5000);
+loadOrders();
+setInterval(loadOrders, 5000);
