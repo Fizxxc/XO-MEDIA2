@@ -27,10 +27,10 @@ export default async function handler(req, res) {
 
     // Validasi buyer minimal ada name, email, wa
     if (
-      buyer ||
-      buyer.name?.trim() ||
-      buyer.email?.trim() ||
-      buyer.wa?.trim()
+      !buyer ||
+      !buyer.name?.trim() ||
+      !buyer.email?.trim() ||
+      !buyer.wa?.trim()
     ) {
       return res.status(400).json({ error: "Buyer info required" });
     }
