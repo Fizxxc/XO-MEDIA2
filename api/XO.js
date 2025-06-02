@@ -2,16 +2,25 @@ const orders = new Map();
 const products = [
   {
     id: 1,
-    name: "E-Book Langit Tidak Hanya Biru",
+    name: "Es Teh",
     cover: "/covers/langit.png",
-    price: 10000,
+    price: 5000,
   },
-  // {
-  //   id: 2,
-  //   name: "E-Book Cerita Inspiratif",
-  //   cover: "/covers/cerita-inspiratif.jpg",
-  //   price: 18000,
-  // },
+  {
+    id: 2,
+    name: "Mie (Rebus/Goreng)",
+    cover: "/covers/cerita-inspiratif.jpg",
+    price: 8000,
+  },
+  {
+    id: 3,
+    name: "Martel",
+    cover: "/covers/langit.png",
+    price: 5000,
+    price: 2000,
+    price: 3000,
+    price: 6000,
+  },
 ];
 
 export default async function handler(req, res) {
