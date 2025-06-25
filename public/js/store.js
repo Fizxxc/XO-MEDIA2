@@ -121,5 +121,12 @@ paidBtn.addEventListener("click", async () => {
   }
 });
 
+const toggleBtn = document.getElementById('toggleCs');
+  const csWidget = document.getElementById('cs-widget');
+
+  toggleBtn.addEventListener('click', () => {
+    csWidget.classList.toggle('hidden');
+  });
+
 // Load produk saat halaman siap
 loadProducts();
